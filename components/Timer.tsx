@@ -19,18 +19,22 @@ export default function Timer({ onComplete }: TimerProps) {
       const ctx = new AudioContext();
       audioRef.current = ctx;
 
-      // Play 3 beeps
-      [0, 0.3, 0.6].forEach((delay) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = 880;
-        osc.type = "sine";
-        gain.gain.value = 0.3;
-        osc.start(ctx.currentTime + delay);
-        osc.stop(ctx.currentTime + delay + 0.15);
-      });
+      // Play 3 rounds of alarm beeps (loud, unmissable)
+      const frequencies = [880, 1100, 880];
+      for (let round = 0; round < 3; round++) {
+        frequencies.forEach((freq, i) => {
+          const delay = round * 1.2 + i * 0.3;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = "square";
+          gain.gain.value = 0.5;
+          osc.start(ctx.currentTime + delay);
+          osc.stop(ctx.currentTime + delay + 0.2);
+        });
+      }
     } catch {
       // Audio not available
     }
